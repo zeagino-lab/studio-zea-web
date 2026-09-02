@@ -695,7 +695,7 @@ function numArea(v){
   let n=m[1].replace(/\./g,'').replace(',','.');
   n=parseFloat(n);
   if(str.includes('Hasta')) n=Math.max(60,n);
-  if(str.includes('Más de')) n=400;
+  if(str.includes('Más de')) n=Math.round(n*1.15);
   return Number.isFinite(n)?n:150;
 }
 function selectedLevel(){
