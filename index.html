@@ -638,29 +638,60 @@ function currentFlow(){
    + costos normales de ejecución. NO se vuelve a cargar margen/riesgo sobre ellas.
    Se separan honorarios profesionales para evitar inflar el m².
 */
+/* ===== MOTOR ECONOMICO STUDIO ZEA · Quito/Pichincha 2026 — V12 (modelo sourced) =====
+   Fuentes: CAE Reglamento Nacional de Aranceles (honorarios/fases), INEC IPCO 2026
+   (solo como referencia de indices de materiales, NO como precio/m2), Municipio de
+   Quito IRM/LMU-20 (tramites, no costos), referencia comercial ENOBRAGRISEC 2025
+   (contraste de mercado, no oficial). Ver DATA BASE/ESTIMADOR - WEB/ para el detalle
+   completo y docs/ESTADO_REAL_2026-09-08.md para el inventario de fuentes.
+*/
 const PRICING={
   house:{
-    esencial:[400,480],
-    confort:[500,600],
-    signature:[650,800]
+    'Básica optimizada':[500,650],
+    'Estándar':[650,800],
+    'Contemporánea':[800,1050],
+    'Premium':[1050,1400],
+    'Autor / lujo':[1400,1900]
   },
-  remodel:[300,480],
-  commercial:[480,700],
-  zone:{'Valles':1.03,'Norte':1.00,'Sur':0.97,'Otro':1.02},
-  terrain:{'Plano':1.00,'Pendiente leve':1.02,'Pendiente pronunciada':1.06,'No lo sé':1.02},
-  floors:{'1 piso':1.00,'2 pisos':1.02,'3 pisos':1.05,'4+ pisos':1.08},
-  labor:{'Valles':1.02,'Norte':1.00,'Sur':0.98,'Otro':1.01}
+  remodel:{
+    'Actualizar acabados':[150,300],
+    'Redistribuir':[300,500],
+    'Redistribuir + acabados':[500,800],
+    'Intervención mayor':[800,1200]
+  },
+  commercial:{
+    'Oficina':[600,850],
+    'Retail':[650,1100],
+    'Cafetería / restaurante':[650,1100],
+    'Consultorio':[650,1100]
+  },
+  zone:{'Valles':1.05,'Norte':1.00,'Sur':0.95,'Otro':1.00},
+  terrain:{'Plano':1.00,'Pendiente leve':1.03,'Pendiente pronunciada':1.12,'No lo sé':1.05},
+  /* Pisos: factor interno adicional (no forma parte del modelo sourced de
+     CAE/INEC/Municipio) — se mantiene por ser una asuncion tecnica razonable
+     ya existente; queda marcado para revision si aparece una fuente mejor. */
+  floors:{'1 piso':1.00,'2 pisos':1.02,'3 pisos':1.05,'4+ pisos':1.08}
 };
-/* Honorarios de referencia: se mantienen separados de la obra.
-   Dirección y administración siguen la referencia del CAE cuando el cliente
-   contrata esos servicios, en vez de esconderlos dentro del m². */
-const SERVICE_RATES={
-  'Diseño':.05,'Diseño + ingeniería':.075,'Diseño + construcción':.05,
-  'Integral':.05,'Diseño interior':.025,'Arquitectura + interior':.065,
-  'Construcción + dirección':.10,'BIM + documentación':.06,
-  'BIM + coordinación':.05,'Solo BIM':.035,'Visualización':0,
-  'Diseño + visualización':.06
-};
+/* Complejidad y acabados/importados del modelo sourced se derivan del nivel
+   de calidad seleccionado, en vez de agregar 2 preguntas nuevas al asistente
+   (para no alargar el flujo y proteger la conversion). Es una aproximacion
+   documentada, no un dato directamente preguntado — ver AGENTS.md. */
+const COMPLEXITY_BY_LEVEL={'Básica optimizada':1.00,'Estándar':1.00,'Contemporánea':1.05,'Premium':1.10,'Autor / lujo':1.18};
+const IMPORTS_BY_LEVEL={'Básica optimizada':1.00,'Estándar':1.05,'Contemporánea':1.10,'Premium':1.18,'Autor / lujo':1.25};
+function sizeFactor(area){
+  if(area<=80) return 1.12;
+  if(area<=120) return 1.06;
+  if(area<=180) return 1.00;
+  if(area<=300) return 0.97;
+  if(area<=500) return 0.94;
+  return 0.92;
+}
+function complexityFactor(nivel){ return COMPLEXITY_BY_LEVEL[nivel]||1.00; }
+function importsFactor(nivel){ return IMPORTS_BY_LEVEL[nivel]||1.00; }
+/* Acceso/logistica tambien se deriva (del terreno) por la misma razon. */
+function accessFactor(terrenoTipo){
+  return terrenoTipo==='Pendiente pronunciada' ? 1.06 : 1.00;
+}
 const FLOW_SERVICES={
  'Casa nueva':['Diseño','Diseño + ingeniería','Diseño + construcción','Integral'],
  'Remodelación':['Diseño interior','Arquitectura + interior','Diseño + construcción','Integral'],
@@ -685,7 +716,7 @@ function ensureDynamicSteps(){
     if(f.__ready)return;
     const add=[];
     if(['Casa nueva','Arquitectura'].includes(mode)){
-      add.push(['nivel','¿Qué nivel de acabados imaginas?','Esta selección orienta materialidad y complejidad.',[['Esencial','Funcional y eficiente'],['Confort','Equilibrio entre calidad y detalle'],['Signature','Mayor personalización y materialidad']]]);
+      add.push(['nivel','¿Qué nivel de acabados imaginas?','Esta selección orienta materialidad y complejidad.',[['Básica optimizada','Funcional y eficiente, materiales nacionales'],['Estándar','Buen nivel de terminación'],['Contemporánea','Diseño personalizado y mejores prestaciones'],['Premium','Materiales superiores, acabados selectos'],['Autor / lujo','Alta personalización y equipamiento']]]);
       add.push(['terrenoTipo','¿Cómo es el terreno?','Si no lo sabes, lo dejamos como pendiente de evaluación.',[['Plano','Sin complejidad topográfica relevante'],['Pendiente leve','Ajustes moderados'],['Pendiente pronunciada','Mayor incidencia en implantación'],['No lo sé','Se revisará técnicamente']]]);      
       add.push(['pisos','¿Cuántos pisos imaginas?','Aproximación para dimensionar complejidad y circulación.',[['1 piso','Desarrollo horizontal'],['2 pisos','Dos niveles'],['3 pisos','Mayor desarrollo vertical'],['4+ pisos','Alta complejidad vertical']]]);
     }
@@ -708,26 +739,24 @@ function numArea(v){
   if(str.includes('Más de')) n=Math.round(n*1.15);
   return Number.isFinite(n)?n:150;
 }
-function selectedLevel(){
-  return (estimator.data.nivel||'Confort').toLowerCase().replace(/í/g,'i');
-}
 function houseRate(){
-  const l=selectedLevel();
-  if(l.includes('esencial'))return PRICING.house.esencial;
-  if(l.includes('signature'))return PRICING.house.signature;
-  return PRICING.house.confort;
+  return PRICING.house[estimator.data.nivel] || PRICING.house['Estándar'];
 }
 function rangeMul(){
-  const d=estimator.data;
-  let m=(PRICING.zone[d.zona]||1)*(PRICING.terrain[d.terrenoTipo]||1)*(PRICING.labor[d.zona]||1);
+  const d=estimator.data, nivel=d.nivel||'Estándar';
+  let m=(PRICING.zone[d.zona]||1)*(PRICING.terrain[d.terrenoTipo]||1);
   m*=PRICING.floors[d.pisos]||1;
+  m*=sizeFactor(numArea(d.area));
+  m*=complexityFactor(nivel);
+  m*=importsFactor(nivel);
+  m*=accessFactor(d.terrenoTipo);
   return m;
 }
 function money(n){return 'USD '+Math.round(n).toLocaleString('en-US');}
 function rng(a,b){return [Math.round(a),Math.round(b)];}
 function estimateCost(){
   const d=estimator.data, mode=estimator.mode, area=numArea(d.area);
-  let construction=[0,0], design=[0,0], engineering=[0,0], direction=[0,0], admin=[0,0], studies=[0,0], visualization=[0,0];
+  let construction=[0,0], design=[0,0], engineering=[0,0], direction=[0,0], admin=[0,0], fiscalizacion=[0,0], studies=[0,0], visualization=[0,0], contingency=[0,0];
 
   if(['Casa nueva','Arquitectura'].includes(mode)){
     const r=houseRate(), m=rangeMul();
@@ -738,33 +767,39 @@ function estimateCost(){
     const engRate=(svc.includes('ingeniería')||svc==='Integral'||svc==='construcción')?.025:0;
     const dirRate=(svc.includes('construcción')||svc==='Integral')?.05:0;
     const admRate=(svc.includes('construcción')||svc==='Integral')?.05:0;
+    const fiscRate=(svc.includes('construcción')||svc==='Integral')?.04:0; /* CAE: fiscalización 4% */
     design=rng(base[0]*designRate,base[1]*designRate);
     engineering=rng(base[0]*engRate,base[1]*engRate);
     direction=rng(base[0]*dirRate,base[1]*dirRate);
     admin=rng(base[0]*admRate,base[1]*admRate);
+    fiscalizacion=rng(base[0]*fiscRate,base[1]*fiscRate);
     studies=rng(Math.max(450,base[0]*.008),Math.max(900,base[1]*.015));
-    if(d.nivel==='Signature') visualization=rng(900,1800);
+    if(d.nivel==='Autor / lujo') visualization=rng(900,1800);
+    contingency=rng((base[0]+studies[0]+engineering[0])*.08,(base[1]+studies[1]+engineering[1])*.08); /* CAE/interno: contingencia obra nueva 8% */
   }else if(mode==='Remodelación'){
     let m=(PRICING.zone[d.zona]||1);
-    if(d.alcance==='Intervención mayor')m*=1.08;
-    if(d.alcance==='Redistribuir + acabados')m*=1.04;
-    construction=rng(area*PRICING.remodel[0]*m,area*PRICING.remodel[1]*m);
+    const tier=PRICING.remodel[d.alcance]||PRICING.remodel['Redistribuir'];
+    construction=rng(area*tier[0]*m,area*tier[1]*m);
     const base=construction, svc=d.servicios||'Diseño interior';
     design=rng(Math.max(900,base[0]*.05),Math.max(1600,base[1]*.065));
     engineering=d.alcance==='Intervención mayor'?rng(Math.max(300,base[0]*.02),Math.max(600,base[1]*.03)):[0,0];
     direction=(svc.includes('construcción')||svc==='Integral')?rng(base[0]*.05,base[1]*.05):[0,0];
     admin=(svc.includes('construcción')||svc==='Integral')?rng(base[0]*.05,base[1]*.05):[0,0];
+    fiscalizacion=(svc.includes('construcción')||svc==='Integral')?rng(base[0]*.04,base[1]*.04):[0,0];
     studies=rng(250,900);
+    contingency=rng((base[0]+studies[0]+engineering[0])*.12,(base[1]+studies[1]+engineering[1])*.12); /* Remodelación: 12% */
   }else if(mode==='Comercial'){
     let m=PRICING.zone[d.zona]||1;
-    if(d.alcance==='Diseño + adecuación')m*=1.04;
-    construction=rng(area*PRICING.commercial[0]*m,area*PRICING.commercial[1]*m);
+    const tier=PRICING.commercial[d.estado]||PRICING.commercial['Oficina'];
+    construction=rng(area*tier[0]*m,area*tier[1]*m);
     const base=construction, svc=d.servicios||'Diseño';
     design=rng(base[0]*.05,base[1]*.06);
     engineering=rng(base[0]*.02,base[1]*.03);
     direction=(svc.includes('construcción')||svc==='Integral')?rng(base[0]*.05,base[1]*.05):[0,0];
     admin=(svc.includes('construcción')||svc==='Integral')?rng(base[0]*.05,base[1]*.05):[0,0];
+    fiscalizacion=(svc.includes('construcción')||svc==='Integral')?rng(base[0]*.04,base[1]*.04):[0,0];
     studies=rng(500,1500);
+    contingency=rng((base[0]+studies[0]+engineering[0])*.08,(base[1]+studies[1]+engineering[1])*.08);
   }else if(mode==='Empresa / BIM'){
     const rate=d.entregables==='Modelo + planos'?[5,8]:d.entregables==='Coordinación'?[4,7]:[3,6];
     design=rng(Math.max(700,area*rate[0]),Math.max(1400,area*rate[1]));
@@ -777,9 +812,9 @@ function estimateCost(){
     const base=d.entregables==='Recorrido'?[1400,2800]:d.entregables==='Exterior + interior'?[900,1800]:[500,1200];
     visualization=base;
   }
-  const totalLow=construction[0]+design[0]+engineering[0]+direction[0]+admin[0]+studies[0]+visualization[0];
-  const totalHigh=construction[1]+design[1]+engineering[1]+direction[1]+admin[1]+studies[1]+visualization[1];
-  return {construction,design,engineering,direction,admin,studies,visualization,total:[totalLow,totalHigh],area};
+  const totalLow=construction[0]+design[0]+engineering[0]+direction[0]+admin[0]+fiscalizacion[0]+studies[0]+visualization[0]+contingency[0];
+  const totalHigh=construction[1]+design[1]+engineering[1]+direction[1]+admin[1]+fiscalizacion[1]+studies[1]+visualization[1]+contingency[1];
+  return {construction,design,engineering,direction,admin,fiscalizacion,studies,visualization,contingency,total:[totalLow,totalHigh],area};
 }
 function hasEnoughForEstimate(){
   const d=estimator.data;
@@ -883,10 +918,10 @@ function result(){
   data:{...d},
   mode:estimator.mode,
   estimate:c,
-  pricingVersion:'V11-Quito-2026-competitiva',
+  pricingVersion:'V12-Quito-2026-sourced-CAE-INEC',
   validation:{
-    marketBenchmarks:'Quito 2026',
-    laborReference:'SBU 2026 + referencias sectoriales Quito',
+    marketBenchmarks:'CAE Reglamento Nacional de Aranceles; INEC IPCO 2026; Municipio de Quito IRM/LMU-20; referencia comercial ENOBRAGRISEC 2025',
+    laborReference:'Ver DATA BASE/ESTIMADOR - WEB/STUDIO_ZEA_Correcciones_Estimador_Quito_2026.txt',
     clientVisible:false
   }
 };
@@ -898,8 +933,10 @@ function result(){
     ['Ingeniería',c.engineering],
     ['Dirección arquitectónica',c.direction],
     ['Administración',c.admin],
+    ['Fiscalización',c.fiscalizacion],
     ['Estudios / permisos',c.studies],
-    ['Visualización',c.visualization]
+    ['Visualización',c.visualization],
+    ['Contingencia',c.contingency]
   ].filter(x=>x[1][1]>0);
   document.getElementById('wBody').innerHTML=`
     <div class="eyebrow">Perfil preliminar</div>
@@ -917,7 +954,7 @@ function result(){
         ${d.nivel?`<div class="result-row"><span>Nivel</span><b>${d.nivel}</b></div>`:''}
         ${d.servicios?`<div class="result-row"><span>Alcance</span><b>${d.servicios}</b></div>`:''}
       </div>
-      <p class="estimate-note">Estimación preliminar en USD para Quito y Pichincha, calibrada con referencias públicas de mercado 2026, condiciones laborales locales y factores de alcance, zona, área y complejidad. No constituye una cotización contractual. La definición final requiere evaluación técnica, APU, condiciones del predio, especificaciones, cantidades y alcance contratado. Los impuestos se confirmarán según la estructura contractual.</p>
+      <p class="estimate-note">Estimación preliminar en USD para Quito y Pichincha, con honorarios referenciados al Reglamento Nacional de Aranceles del CAE e incluye un margen de contingencia. No constituye una cotización contractual. La definición final requiere evaluación técnica, APU, condiciones del predio, especificaciones, cantidades y alcance contratado. Los impuestos se confirmarán según la estructura contractual.</p>
       <div class="actions">
         <button class="btn dark" type="button" onclick="shareProjectToWhatsApp()">Enviar mi proyecto por WhatsApp →</button>
         <button class="btn" onclick="resetEstimator()">Editar</button>
