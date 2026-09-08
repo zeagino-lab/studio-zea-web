@@ -141,3 +141,19 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** Ninguna nueva — se mantiene el plan ya aprobado.
 **PENDIENTES:** URL del Apps Script `/exec`; ID de medición GA4; confirmación explícita para reemplazar `PRICING` por el modelo sourced.
 **SIGUIENTE ACCIÓN:** Corregir el auto-XSS del campo nombre (bajo riesgo, sin dependencias externas) mientras se resuelven los pendientes de datos del usuario.
+
+### TAREA: Corregir items pendientes de bajo riesgo (auto-XSS, código muerto, SEO básico)
+**OBJETIVO:** Resolver los pendientes que no requieren aprobación explícita (no tocan precios/fórmulas de negocio ni infraestructura).
+**ESTADO:** Completado
+**ARCHIVOS MODIFICADOS:** `index.html`
+**CAMBIOS:**
+- Agregado `escapeHtml()` y aplicado en `result()` — cierra el auto-XSS del campo nombre.
+- `leadClassification()`: eliminada la comparación contra `'Solo quiero orientación'` (string que no existe en `BUDGET_OPTIONS`, condición siempre verdadera). Comportamiento idéntico.
+- Favicon SVG inline con colores de marca (no depende del logo pesado en base64).
+- Open Graph (title/description/locale/site_name) + JSON-LD `schema.org/ProfessionalService` con datos ya verificados en el sitio (nombre, teléfono, zonas, fundador). `og:url`/`og:image` deliberadamente pendientes hasta tener URL pública real.
+**DEPENDENCIAS:** Ninguna nueva.
+**PRUEBAS REALIZADAS:** `node --check` en ambos `<script>`. Test manual de `escapeHtml()` (neutraliza `<img onerror>`, no altera nombres normales). Test manual de `leadClassification()` con los mismos 3 casos antes/después — sin regresión. `git diff` revisado línea por línea antes de comitear.
+**PROBLEMAS DETECTADOS:** Ninguno nuevo.
+**DECISIONES:** No se fijó `og:url`/`og:image` para no anunciar una URL que todavía no resuelve.
+**PENDIENTES:** Migración de `PRICING` al modelo sourced (requiere aprobación explícita — cambia precios reales mostrados al cliente); deduplicación/optimización de imágenes base64 (20,7 MB → objetivo <2 MB, tarea grande, a programar); URL de Apps Script; ID de GA4.
+**SIGUIENTE ACCIÓN:** Confirmar con el usuario si se procede ya con la migración de `PRICING` y si la deduplicación de imágenes se hace en esta misma sesión o se programa aparte.
