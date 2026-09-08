@@ -299,6 +299,16 @@
   .btn,.tab,.opt,.service-link{touch-action:manipulation}
 }
 </style>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111512'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-style='italic' font-size='18' fill='%23b8a27d' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="STUDIO ZEA">
+<meta property="og:title" content="STUDIO ZEA — Arquitectura · Diseño · Construcción">
+<meta property="og:description" content="STUDIO ZEA — Arquitectura, diseño y construcción en Quito y Pichincha.">
+<meta property="og:locale" content="es_EC">
+<!-- og:url y og:image pendientes: requieren una URL publica una vez el sitio este desplegado (studiozea.com). No fijar todavia para no anunciar una URL que aun no resuelve. -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ProfessionalService","name":"STUDIO ZEA","description":"Arquitectura, diseño y construcción en Quito y Pichincha.","telephone":"+593992717424","areaServed":["Quito","Cumbayá","Tumbaco","Nayón","Puembo","Valle de los Chillos","Sangolquí","Pichincha"],"founder":{"@type":"Person","name":"Gino Zea","jobTitle":"Arquitecto / Director"}}
+</script>
 </head>
 <body><div class="logo-intro" id="logoIntro" aria-label="STUDIO ZEA">
   <div class="logo-intro-inner">
@@ -856,11 +866,14 @@ function leadClassification(){
   let score=0;
   if(d.terreno && ['Sí, ya tengo terreno','Estoy comprándolo'].includes(d.terreno)) score+=2;
   if(d.inicio && ['0–2 meses','1–3 meses','Esta semana','Este mes','0–1 mes'].includes(d.inicio)) score+=2;
-  if(d.presupuesto && d.presupuesto!=='Solo quiero orientación') score+=1;
+  if(d.presupuesto) score+=1;
   if(d.tipo && d.tipo!=='') score+=1;
   if(score>=4) return 'CALIENTE';
   if(score>=2) return 'TIBIO';
   return 'FRÍO';
+}
+function escapeHtml(str){
+  return String(str||'').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 function result(){
   const d=estimator.data, flow=currentFlow(), c=estimateCost();
@@ -890,7 +903,7 @@ function result(){
   ].filter(x=>x[1][1]>0);
   document.getElementById('wBody').innerHTML=`
     <div class="eyebrow">Perfil preliminar</div>
-    <h3>${estimator.nombre}, esta es una primera lectura económica de tu proyecto.</h3>
+    <h3>${escapeHtml(estimator.nombre)}, esta es una primera lectura económica de tu proyecto.</h3>
     <div class="result">
       <div class="eyebrow">Estimación de inversión</div>
       <div class="result-total">${money(c.total[0])} – ${money(c.total[1])}</div>
