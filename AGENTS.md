@@ -182,3 +182,26 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 - No hay migración de datos históricos de leads (no hay backend, los leads pasados solo llegaron por WhatsApp) — no había nada que remapear del nivel "Confort" viejo.
 **PENDIENTES:** Deduplicación/optimización de imágenes base64 (20,7 MB → objetivo <2 MB) — aprobada por el usuario, no iniciada todavía; URL de Apps Script; ID de GA4.
 **SIGUIENTE ACCIÓN:** Iniciar la deduplicación/optimización de imágenes (extraer las ~25 imágenes únicas de base64 a archivos externos en `images/`, eliminar duplicados, comprimir).
+
+### TAREA: Deduplicar y externalizar imágenes base64 del estimador/portafolio
+**OBJETIVO:** Reducir el peso de `index.html` (20,7 MB, hallazgo crítico de la auditoría) extrayendo las imágenes embebidas en base64 a archivos externos en `images/`, aprobado explícitamente por el usuario ("Sí, hazlo ahora").
+**ESTADO:** Completado
+**ARCHIVOS MODIFICADOS:** `index.html`; 25 archivos nuevos en `images/`.
+**CAMBIOS:**
+- `index.html` incrustaba 54 `<img src="data:...;base64,...">`, pero eran solo 25 imágenes únicas (cada foto de galería se repetía como thumbnail con el mismo base64 pegado dos veces; algunas fotos de proyecto grandes hasta 3-4 veces).
+- Extraídas las 25 imágenes a `images/*.jpg|png`, nombradas semánticamente según su `alt` real (`residencia-noboa-0N.jpg`, `residencia-ilbay-0N.jpg`, `jb-medical-building-0N.jpg`, `logo-studio-zea.png`, `retrato-gino-zea.jpg`).
+- Los 54 `<img src="data:...">` reemplazados por `<img src="images/...">` al archivo correcto — mismo `alt`, mismo `loading="lazy"`, sin cambios de marcado ni layout.
+- Optimización aplicada (verificada visualmente antes de aplicar el reemplazo, viendo el resultado en pantalla):
+  - `logo-studio-zea.png`: cuantización a paleta de 128 colores (927KB → 102KB, -89%). Se mantiene PNG por la transparencia.
+  - `retrato-gino-zea`: PNG → JPEG calidad 88 (el canal alfa era 100% opaco, no había transparencia real). 2.826KB → 194KB, -93%.
+  - Las 23 fotografías de proyecto: recomprimidas JPEG calidad 72 progresivo, mismas dimensiones en píxeles (se muestran a pantalla completa en el lightbox de cada proyecto — no se redujo resolución para no arriesgar nitidez ahí). Ahorro moderado, 9-25% cada una.
+- No se tocó el favicon (SVG inline, no es base64) ni `images/studio-zea-logo-animado.gif` (ya era externo).
+**DEPENDENCIAS:** Ninguna nueva (PIL/Pillow ya disponible en el entorno usado para procesar).
+**PRUEBAS REALIZADAS:** conteo de referencias base64 restantes = 0; balance de `<script>` intacto (3/3); `node --check` en los 2 bloques `<script>` vanilla; conteo de `<img>` (54) y `loading="lazy"` (26) sin cambios antes/después; verificación cruzada de cada `alt` contra el archivo asignado; verificación de que no quedan archivos en `images/` sin referenciar; inspección visual directa del logo cuantizado y el retrato convertido a JPEG antes de aplicar el cambio al HTML real.
+**RESULTADO NUMÉRICO:** `index.html` 20,75MB → 88KB. `images/` 1 archivo (gif) → 26 archivos (+4,4MB). Total del sitio: 20,75MB → ~4,5MB (**-78%**).
+**PROBLEMAS DETECTADOS:** Ninguno nuevo.
+**DECISIONES:**
+- No se llegó al objetivo literal de <2MB de la auditoría — exigiría reducir resolución de las fotos de proyecto (se muestran a pantalla completa en el lightbox), lo que se evaluó como riesgo visual en un sitio donde la fotografía es central para la conversión, y se decidió no forzarlo sin aprobación adicional.
+- La mejora real de rendimiento es mayor de lo que sugiere el -78%: antes había que descargar un solo archivo de 20,75MB entero antes de pintar cualquier contenido; ahora son 26 archivos cacheables independientes, con `loading="lazy"` finalmente funcional en cada galería.
+**PENDIENTES:** URL de Apps Script (persistencia de leads); ID de medición GA4. Si se quiere bajar de 2MB en el futuro: evaluar con el usuario si conviene reducir resolución de las fotos más grandes o generar variantes `srcset` (versión chica para thumbnail, grande para lightbox) — no se hizo en esta tarea porque no estaba aprobado y añade complejidad de marcado.
+**SIGUIENTE ACCIÓN:** Retomar Fase 1 (WhatsApp + persistencia de lead + analítica) en cuanto el usuario entregue la URL del Apps Script y el ID de GA4.
