@@ -157,3 +157,28 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** No se fijó `og:url`/`og:image` para no anunciar una URL que todavía no resuelve.
 **PENDIENTES:** Migración de `PRICING` al modelo sourced (requiere aprobación explícita — cambia precios reales mostrados al cliente); deduplicación/optimización de imágenes base64 (20,7 MB → objetivo <2 MB, tarea grande, a programar); URL de Apps Script; ID de GA4.
 **SIGUIENTE ACCIÓN:** Confirmar con el usuario si se procede ya con la migración de `PRICING` y si la deduplicación de imágenes se hace en esta misma sesión o se programa aparte.
+
+### TAREA: Migrar PRICING al modelo sourced (CAE/INEC/Municipio/ENOBRAGRISEC)
+**OBJETIVO:** Reemplazar el `PRICING` sin fuente citada (V11) por el modelo con fuentes reales ya preparado en `DATA BASE/ESTIMADOR - WEB/`, aprobado explícitamente por el usuario ("Sí, migra al modelo sourced").
+**ESTADO:** Completado
+**ARCHIVOS MODIFICADOS:** `index.html`
+**CAMBIOS:**
+- `PRICING.house`: de 3 niveles genéricos (esencial/confort/signature) a 5 niveles con nombre y rango propio del modelo sourced ("Básica optimizada" → "Autor / lujo").
+- `PRICING.remodel` y `PRICING.commercial`: de un solo rango + multiplicador ad-hoc (`m*=1.08`, `m*=1.04`) a tablas por alcance/tipo (4 tramos cada una), igual que house.
+- Nuevos factores multiplicativos en `rangeMul()`: `sizeFactor()` (economía de escala por m²), `complexityFactor()`/`importsFactor()` (derivados de `nivel`), `accessFactor()` (derivado de `terrenoTipo`). Sustituyen `PRICING.labor` (plano, sin fuente).
+- `estimateCost()`: se agregan `fiscalizacion` (4% CAE, mismo trigger que dirección/administración) y `contingency` (8% obra nueva/comercial, 12% remodelación) como líneas nuevas, visibles en el resultado (`result()` ahora las lista).
+- `pricingVersion` → `V12-Quito-2026-sourced-CAE-INEC`; `validation.marketBenchmarks`/`laborReference` citan CAE/INEC/Municipio/ENOBRAGRISEC en vez de "Quito 2026" genérico. Disclaimer visible al cliente actualizado (menciona Reglamento de Aranceles CAE y margen de contingencia).
+- Eliminado código muerto del modelo viejo: `selectedLevel()`, `PRICING.house.esencial/confort/signature`, `PRICING.labor`, `SERVICE_RATES` (ya estaba sin usar).
+**DEPENDENCIAS:** Ninguna nueva.
+**PRUEBAS REALIZADAS:** Script Node aislado (bloque `PRICING`/`estimateCost()` extraído por número de línea exacto, verificado con `git show`) comparando el modelo viejo (commit `de9b2d8`) contra el nuevo, mismos 4 escenarios representativos (Casa nueva/Diseño, Casa nueva/Integral, Remodelación, Comercial) con los mismos zona/terreno/pisos/área. `node --check` en los 2 `<script>` vanilla del archivo final. Grep confirmando cero referencias residuales a nombres del modelo viejo.
+**IMPACTO NUMÉRICO VERIFICADO (antes V11 → después V12):**
+- Casa nueva, Confort/Estándar, Valles, 150-250m², solo diseño: USD 85.033-102.714 → USD 124.845-154.675 (+47%/+51%)
+- Casa nueva, ídem, servicio Integral (con construcción): USD 95.080-114.769 → USD 143.155-177.211 (+51%/+54%)
+- Remodelación, Redistribuir + acabados, Valles, 150-250m²: USD 50.864-83.039 → USD 92.418-150.318 (+82%/+81%)
+- Comercial, Oficina, Valles, 80-150m², solo diseño: USD 42.821-64.371 → USD 58.581-85.329 (+37%/+33%)
+**PROBLEMAS DETECTADOS:** Ninguno nuevo. El alza es real y esperada: V11 no separaba fiscalización ni contingencia, y su m² base no citaba fuente (posible subvaluación previa, no error de este cambio).
+**DECISIONES:**
+- `complexityFactor`/`importsFactor`/`accessFactor` se derivan de campos que el wizard ya pregunta (`nivel`, `terrenoTipo`) en vez de agregar preguntas nuevas al flujo, para no alargarlo ni afectar conversión — aproximación documentada en el código, no un dato preguntado directamente.
+- No hay migración de datos históricos de leads (no hay backend, los leads pasados solo llegaron por WhatsApp) — no había nada que remapear del nivel "Confort" viejo.
+**PENDIENTES:** Deduplicación/optimización de imágenes base64 (20,7 MB → objetivo <2 MB) — aprobada por el usuario, no iniciada todavía; URL de Apps Script; ID de GA4.
+**SIGUIENTE ACCIÓN:** Iniciar la deduplicación/optimización de imágenes (extraer las ~25 imágenes únicas de base64 a archivos externos en `images/`, eliminar duplicados, comprimir).
