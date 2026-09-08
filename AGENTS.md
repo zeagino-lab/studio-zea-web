@@ -117,3 +117,27 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** Git inicializado en `PAGINA WEB/extracted` como fuente única de verdad del código. Captura de leads futura vía Google Sheets (Apps Script). Analítica futura vía GA4 (pendiente de creación por el usuario).
 **PENDIENTES:** URL del Apps Script desplegado, ID de medición GA4, confirmación del modelo de precios sourced (sección 4/5 de este archivo) para reemplazar `PRICING` actual.
 **SIGUIENTE ACCIÓN:** Integrar campo de WhatsApp + persistencia de lead + analítica en cuanto el usuario entregue los dos datos pendientes; después, migrar `PRICING` al modelo sourced de `DATA BASE/ESTIMADOR - WEB/`.
+
+### TAREA: Sincronización de estado para coordinación con ChatGPT (09/09/2026)
+**OBJETIVO:** Confirmar el estado técnico real del repositorio, sin modificar código, precios ni infraestructura.
+**ESTADO:** Completado (como tarea de verificación — el proyecto en sí sigue con pendientes, ver detalle abajo)
+**ARCHIVOS MODIFICADOS:** Ninguno (solo lectura: `git log`, `git status`, `grep` sobre `index.html`)
+**CAMBIOS:** Ninguno.
+**PRUEBAS REALIZADAS:** Verificación directa contra el repositorio real (no contra memoria/supuestos): `git log`/`git status` limpio, `grep` confirmando presencia/ausencia de cada función y patrón relevante.
+**ESTADO POR ÍTEM:**
+1. `index.html` — sin cambios desde el commit `fcc9c82`; árbol de trabajo limpio. COMPLETADO.
+2. Estimador — funcional, 7 flujos, sin inputs numéricos libres. PARCIAL (sin persistencia de lead ni analítica).
+3. `numArea()` — corregido y confirmado en línea 698 (`n=Math.round(n*1.15)`). COMPLETADO.
+4. `estimateCost()` — presente, sin cambios desde la corrección de `numArea()`. PARCIAL (usa el `PRICING` viejo).
+5. `PRICING` — sigue siendo el modelo original (línea 631); cero referencias a `PRICING.quality/scope`, `TIMING.*`, `FEES.CAE`, `SOURCES` del modelo sourced. PENDIENTE.
+6. Auto-XSS en campo nombre — sigue presente (línea 893, `innerHTML` sin escapar). PENDIENTE.
+7. Captura/persistencia de leads — no implementada (0 referencias a `sendLeadToSheet`/`LEAD_ENDPOINT_URL`). BLOQUEADO — depende de la URL del Apps Script desplegado por el usuario.
+8. WhatsApp — flujo original intacto y funcional. COMPLETADO tal cual estaba; PARCIAL respecto al objetivo de captura previa.
+9. Google Sheets/Apps Script — `Code.gs` entregado al usuario con instrucciones; falta la URL `/exec`. BLOQUEADO.
+10. GA4/Analytics — no integrado (0 referencias a `gtag`/GA4). Instrucciones ya entregadas al usuario; falta el Measurement ID. BLOQUEADO.
+11. Git — limpio, 3 commits, HEAD en `7b82ede`. COMPLETADO.
+12. Pruebas — verificación manual con Node de `numArea()` (5 flujos + regresión) e integridad del HTML. No hay suite automatizada. PARCIAL.
+**PROBLEMAS DETECTADOS:** Sin novedades respecto a la auditoría original — siguen abiertos: imágenes base64 duplicadas (20,7 MB), SEO técnico ausente, `SERVICE_RATES` código muerto, comparación inalcanzable en `leadClassification()`.
+**DECISIONES:** Ninguna nueva — se mantiene el plan ya aprobado.
+**PENDIENTES:** URL del Apps Script `/exec`; ID de medición GA4; confirmación explícita para reemplazar `PRICING` por el modelo sourced.
+**SIGUIENTE ACCIÓN:** Corregir el auto-XSS del campo nombre (bajo riesgo, sin dependencias externas) mientras se resuelven los pendientes de datos del usuario.
