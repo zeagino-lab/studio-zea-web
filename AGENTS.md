@@ -389,3 +389,14 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** Se archivó (no se borró) la copia obsoleta, dejando una nota explicativa, en vez de eliminarla sin dejar rastro. La única Bitácora vigente sigue siendo `PAGINA WEB/extracted/AGENTS.md`, tal como este mismo archivo ya lo establece en su introducción.
 **PENDIENTES:** Los mismos de la entrada anterior (confirmar Facebook/LinkedIn, respuesta de ChatGPT, credenciales de solo lectura de GA4/Cloudflare, aprobación de Zaraz) más el `git push` de los 3 commits ya acumulados (auditoría de redes, prompt de ChatGPT, y este de unificación).
 **SIGUIENTE ACCIÓN:** Pedir al usuario un token temporal de GitHub para subir los 3 commits pendientes, o que lo haga él mismo desde su equipo.
+
+### TAREA: Mover los sync de ChatGPT a una carpeta dedicada fuera del repositorio (`PAGINA WEB/Bitacoras/`)
+**OBJETIVO:** El usuario creó la carpeta `PAGINA WEB\Bitacoras\` y pidió explícitamente que ahí se genere, de ahora en adelante, la bitácora de sincronización con ChatGPT en formato `.md`.
+**ESTADO:** Completado.
+**ARCHIVOS MODIFICADOS:**
+- `docs/SYNC_CHATGPT_2026-09-08.md` y `docs/SYNC_CHATGPT_2026-09-09.md` eliminados del repositorio Git (`git rm`) para no mantener dos copias que puedan desincronizarse.
+- Copias equivalentes creadas en `PAGINA WEB\Bitacoras\SYNC_CHATGPT_2026-09-08.md` y `SYNC_CHATGPT_2026-09-09.md` (fuera del repositorio, no versionadas en Git). La versión del 09/09 se actualizó además para reflejar la nueva ubicación en su propio índice ("Dónde está todo").
+**CAMBIOS EN index.html:** Ninguno.
+**DECISIONES:** A partir de ahora, los documentos de sincronización con ChatGPT (resúmenes ejecutivos, prompts) se generan en `PAGINA WEB\Bitacoras\`, no en `docs/` del repositorio. `docs/` queda para documentación versionada propia del sitio (instructivos, la auditoría de redes, el prompt puntual de contenido/redes). La Bitácora técnica (este archivo, `AGENTS.md`) sigue siendo la única fuente de verdad y sigue viviendo dentro del repositorio, sin cambios.
+**PENDIENTES:** Confirmar con el usuario si también quiere mover `docs/AUDITORIA_CONTENIDO_REDES_2026-09-09.md` y `docs/PROMPT_CHATGPT_CONTENIDO_REDES_2026-09-09.md` a `Bitacoras/`, o si esos se quedan versionados en el repositorio. Los mismos pendientes de fondo de las entradas anteriores (Facebook/LinkedIn, credenciales de solo lectura GA4/Cloudflare, aprobación de Zaraz) y los commits pendientes de `git push`.
+**SIGUIENTE ACCIÓN:** Esperar confirmación del usuario sobre el punto anterior; seguir pendiente el `git push`.
