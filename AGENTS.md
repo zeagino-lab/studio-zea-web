@@ -376,3 +376,16 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** Se decidió no responder todavía en este chat si conviene o no activar Cloudflare Web Analytics/Zaraz — se le pide la opinión razonada primero a ChatGPT, y la decisión final de si se implementa queda pendiente de que el usuario la tome con ambas opiniones (ChatGPT + Claude) sobre la mesa.
 **PENDIENTES:** Respuesta de ChatGPT sobre el calendario/UTMs/Cloudflare. Decisión del usuario sobre el nivel de integración técnica que quiere entre Claude y GA4/Cloudflare (acceso de solo lectura vía credenciales, o solo guía manual sin tokens) — planteado en el chat, a la espera de su respuesta. Sigue pendiente también confirmar Facebook/LinkedIn y la aprobación del paso 1 de Zaraz de entradas anteriores.
 **SIGUIENTE ACCIÓN:** Esperar la respuesta de ChatGPT y la decisión del usuario sobre el nivel de acceso técnico a GA4/Cloudflare antes de proponer cualquier integración con credenciales.
+
+### TAREA: Unificación de Bitácoras — archivar copia obsoleta y actualizar el sync de ChatGPT
+**OBJETIVO:** El usuario pidió "actualizar todo y unificar las bitácoras" tras notar que existía una copia vieja de `AGENTS.md` fuera del repositorio, y que el documento de sync para ChatGPT no incluía las 2 entradas más recientes (auditoría de redes + prompt de ChatGPT).
+**ESTADO:** Completado.
+**ARCHIVOS MODIFICADOS:**
+- `docs/SYNC_CHATGPT_2026-09-09.md` (reescrito/actualizado con las secciones de contenido/redes, la decisión sobre acceso a GA4/Cloudflare, y pendientes al día).
+- `PAGINA WEB/Claude outputs/AGENTS.md` movido a `PAGINA WEB/Claude outputs/_archivo_obsoleto_2026-09-09/AGENTS.md` (fuera del repositorio Git, no afecta el historial de commits) con una nota (`LEEME.md`) explicando por qué quedó obsoleto.
+**HALLAZGO:** La copia en `Claude outputs/AGENTS.md` era del 08/09/2026 y le faltaban más de 20 entradas de Bitácora frente al archivo real (`diff` confirmó que las primeras 119 líneas eran idénticas y el resto no existía ahí) — no tenía ningún contenido único que rescatar.
+**PRUEBAS REALIZADAS:** `diff` entre ambas copias de `AGENTS.md` antes de archivar, para confirmar que la copia vieja era un subconjunto exacto sin información propia. `wc -l` del sync actualizado.
+**PROBLEMAS DETECTADOS:** Ninguno.
+**DECISIONES:** Se archivó (no se borró) la copia obsoleta, dejando una nota explicativa, en vez de eliminarla sin dejar rastro. La única Bitácora vigente sigue siendo `PAGINA WEB/extracted/AGENTS.md`, tal como este mismo archivo ya lo establece en su introducción.
+**PENDIENTES:** Los mismos de la entrada anterior (confirmar Facebook/LinkedIn, respuesta de ChatGPT, credenciales de solo lectura de GA4/Cloudflare, aprobación de Zaraz) más el `git push` de los 3 commits ya acumulados (auditoría de redes, prompt de ChatGPT, y este de unificación).
+**SIGUIENTE ACCIÓN:** Pedir al usuario un token temporal de GitHub para subir los 3 commits pendientes, o que lo haga él mismo desde su equipo.
