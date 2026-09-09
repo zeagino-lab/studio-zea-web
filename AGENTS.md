@@ -252,3 +252,26 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 - **Pruebas realizadas antes del push:** escaneo de secretos en todo el historial (limpio), balance de `<script>`, `node --check`, funciones clave presentes, 26 referencias de imagen verificadas contra disco, prueba de regresión del estimador con los mismos 3 escenarios ya documentados (sin cambios de resultado).
 - **Problemas:** ninguno bloqueante. `.git/` pesa 65MB por el historial (incluye el commit original de 20,7MB antes de la limpieza de imágenes) — no afecta el sitio publicado, solo el tamaño del repositorio.
 - **Siguiente acción:** el repositorio ya sirve como respaldo de prueba. Falta decidir con el usuario si se configura autenticación persistente para futuros pushes, y seguir con Fase 1 (Apps Script + GA4) o el trabajo de contenido/redes que el usuario quiera retomar ahora.
+
+### TAREA: Fase 1 — Integrar campo WhatsApp + persistencia de lead vía Google Apps Script
+**OBJETIVO:** Cerrar el primer pendiente de Fase 1: guardar cada lead del estimador en la hoja de Google del usuario, aunque no llegue a enviar el WhatsApp.
+**ESTADO:** Completado (persistencia); GA4 sigue pendiente por separado.
+**ARCHIVOS MODIFICADOS:** `index.html`.
+**CAMBIOS:**
+- `nameStep()`: se agrega el campo "WhatsApp" (type="tel") junto a "Nombre" — antes no se pedía ningún contacto, así que un lead guardado no era recontactable. Ambos campos ahora son obligatorios para avanzar.
+- Nueva función `sendLeadToSheet(payload)`: hace `fetch()` POST (mode: no-cors, fire-and-forget, try/catch sin romper la UI) al Web App de Google Apps Script desplegado por el usuario.
+- Se llama una sola vez dentro de `result()`, en el momento en que se calcula el resultado — antes de que el usuario decida enviar o no el WhatsApp.
+- `LEADS_ENDPOINT` apunta a `https://script.google.com/macros/s/AKfycbxwS9qxFCExvQSgM6GzH7tEEufJ32wXGcNFTjuXcuawPeUc9WxroPOyLm4zbARm9Iwp/exec`.
+**DEPENDENCIAS:** Ninguna nueva (fetch nativo).
+**PRUEBAS REALIZADAS:**
+- Diagnóstico del endpoint: un POST de prueba (`curl`) devuelve una página de error cosmética de Google (limitación conocida al probar la redirección de Apps Script fuera de un navegador real), pero se confirmó — directamente en la hoja "STUDIO ZEA — Leads" del usuario, con captura de pantalla — que las filas de prueba SÍ se guardaron correctamente. Un `fetch()` real desde el navegador no tiene ese problema cosmético.
+- Balance de `<script>` (3/3), `node --check` en los 2 bloques JS.
+- `git diff` revisado línea por línea: solo `nameStep()`, `sendLeadToSheet()` nueva, y la llamada dentro de `result()`.
+- Prueba aislada de `sendLeadToSheet()` con `fetch` simulado: confirma método POST, `mode:no-cors`, y payload JSON con los 6 campos esperados.
+- No se tocó `PRICING`, `estimateCost()` ni ninguna función de cálculo.
+**PROBLEMAS DETECTADOS:**
+- Al hacer push se encontró un commit `acf02ef` ("Create CNAME") hecho directamente en GitHub por el usuario, agregando `CNAME` con el dominio `studioszea.com` — indica que el usuario está configurando GitHub Pages con dominio propio. Se integró con un merge limpio (sin conflictos, archivos distintos), sin pisar ni forzar nada.
+- Archivos temporales de Git (`index.lock`, `tmp_obj_*`) quedaron sin poder borrarse tras un commit anterior por falta de permiso de borrado en el entorno de trabajo — se solicitó permiso al usuario y se limpiaron sin afectar el repositorio (`git fsck` limpio).
+**DECISIONES:** El campo "WhatsApp" se hizo obligatorio, igual que "Nombre" — un lead sin contacto no es recontactable, que era justamente el hallazgo original de la auditoría.
+**PENDIENTES:** ID de medición GA4 (único dato que falta para cerrar Fase 1 por completo). Aclarar con el usuario la intención real del CNAME (`studioszea.com`) — si va a publicar el sitio vía GitHub Pages, hay que decidir si el repo debe pasar a público (Pages con dominio propio en repos privados requiere GitHub Pro/Team) y coordinar esa decisión antes de que quede publicado sin querer.
+**SIGUIENTE ACCIÓN:** Preguntar al usuario sobre el CNAME/GitHub Pages; recibir el ID de GA4 para cerrar Fase 1.
