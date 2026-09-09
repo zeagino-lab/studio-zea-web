@@ -887,12 +887,15 @@ function nameStep(){
     <div class="eyebrow">Antes del resultado</div>
     <h3>¿Cómo te llamas?</h3>
     <p class="help">Lo usaremos para personalizar el contacto de STUDIO ZEA.</p>
-    <label>Nombre</label><input id="leadName" autocomplete="name" placeholder="Ej. María González">`;
+    <label>Nombre</label><input id="leadName" autocomplete="name" placeholder="Ej. María González">
+    <label>WhatsApp</label><input id="leadWhatsapp" type="tel" autocomplete="tel" placeholder="Ej. 099 999 9999">`;
   document.getElementById('wBack').style.visibility='visible';
   document.getElementById('wNext').textContent='Ver mi proyecto →';
   document.getElementById('wNext').onclick=()=>{
     estimator.nombre=document.getElementById('leadName').value.trim();
+    estimator.whatsapp=document.getElementById('leadWhatsapp').value.trim();
     if(!estimator.nombre){document.getElementById('leadName').focus();return;}
+    if(!estimator.whatsapp){document.getElementById('leadWhatsapp').focus();return;}
     result();
   };
 }
@@ -910,6 +913,26 @@ function leadClassification(){
 function escapeHtml(str){
   return String(str||'').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
+/* Persistencia de leads: Google Apps Script (Web App) ligado a la hoja
+   "STUDIO ZEA — Leads". Se envia apenas se muestra el resultado (result()),
+   antes de que el usuario decida o no enviar el mensaje por WhatsApp, para
+   no perder el lead si no completa ese ultimo paso. Envio "fire and forget":
+   nunca bloquea la interfaz ni interrumpe el flujo si falla (sin conexion,
+   script caido, etc.) — no se muestra error al usuario, solo se pierde el
+   registro en la hoja para ese caso puntual. mode:'no-cors' porque Apps
+   Script no siempre responde con headers CORS legibles desde el navegador;
+   no necesitamos leer la respuesta, solo que el POST llegue. */
+const LEADS_ENDPOINT='https://script.google.com/macros/s/AKfycbxwS9qxFCExvQSgM6GzH7tEEufJ32wXGcNFTjuXcuawPeUc9WxroPOyLm4zbARm9Iwp/exec';
+function sendLeadToSheet(payload){
+  try{
+    fetch(LEADS_ENDPOINT,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload)
+    }).catch(()=>{});
+  }catch(e){}
+}
 function result(){
   const d=estimator.data, flow=currentFlow(), c=estimateCost();
   const internalLead=leadClassification();
@@ -925,6 +948,14 @@ function result(){
     clientVisible:false
   }
 };
+  sendLeadToSheet({
+    nombre:estimator.nombre,
+    whatsapp:estimator.whatsapp||'',
+    mode:estimator.mode,
+    estimateRange:money(c.total[0])+' - '+money(c.total[1]),
+    lead:internalLead,
+    raw:d
+  });
   document.getElementById('wStep').textContent='Resultado';
   document.getElementById('wType').textContent=flow.label;
   const rows=[
