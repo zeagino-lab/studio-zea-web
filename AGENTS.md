@@ -223,3 +223,32 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** Se detiene el flujo antes del paso de `push` y se reporta exactamente qué falta, en vez de asumir o crear un repositorio a ciegas.
 **PENDIENTES:** El usuario debe indicar (a) si ya existe un repositorio de GitHub para este proyecto (URL) o si hay que crear uno nuevo, y (b) cómo autenticar el push (recomendado: token de acceso personal de GitHub con alcance `repo`, usado solo para ese comando puntual, sin guardarlo en la configuración de Git).
 **SIGUIENTE ACCIÓN:** Retomar el push en cuanto el usuario entregue el repositorio (nuevo o existente) y el método de autenticación.
+
+### TAREA: Alinear index.html corregido con GitHub como respaldo (ejecución del push)
+**OBJETIVO:** Completar el push pendiente de la tarea anterior (bloqueada por falta de remoto) ahora que el usuario creó el repositorio y entregó un token de acceso.
+**ESTADO:** Completado
+**ARCHIVOS MODIFICADOS:** Ninguno de código — solo esta entrada de Bitácora (más el commit anterior de Bitácora que documentaba el bloqueo).
+**CAMBIOS:** Se configuró el remoto `origin` apuntando a `https://github.com/zeagino-lab/studio-zea-web.git` (repositorio privado, creado vacío por el usuario) y se hizo `git push -u origin master`.
+**DEPENDENCIAS:** Ninguna nueva.
+**PRUEBAS REALIZADAS:**
+- `git rev-parse HEAD` vs `git rev-parse origin/master` tras el push: coinciden exactamente (`7578cc3`).
+- `git log origin/master` muestra el historial esperado.
+- Verificación de que el token de acceso personal (proporcionado por el usuario, permisos Contents: Read/write + Metadata: Read-only, expira 07/11/2026) se usó solo de forma transitoria en la URL de `origin` durante el comando de push y se retiró inmediatamente después — `git remote -v` confirma que la URL guardada en `.git/config` no contiene el token.
+**PROBLEMAS DETECTADOS:** Ninguno. `.git/` pesa 65MB porque el historial conserva el commit original con el `index.html` de 20,7MB (antes de la deduplicación de imágenes) — es historial legítimo, no un problema; si en el futuro se quiere achicar el repo se podría hacer un squash del historial, pero no se hizo aquí porque implicaría reescribir historia sin que el usuario lo haya pedido.
+**DECISIONES:** No se guardó el token en ningún archivo, variable de entorno persistente ni configuración de Git — su uso fue puntual para este push. Si se necesitan más pushes en el futuro, el usuario deberá generar un token nuevo (o configurar autenticación persistente) salvo que decida lo contrario.
+**PENDIENTES:** URL del Apps Script; ID de GA4; considerar con el usuario si vale la pena configurar autenticación más permanente para no pedir un token cada vez.
+**SIGUIENTE ACCIÓN:** Confirmar al usuario que el push quedó reflejado en GitHub y ofrecer continuar con el trabajo de contenido/redes que mencionó, o retomar Fase 1 (WhatsApp + persistencia + analítica) en cuanto entregue los datos pendientes.
+
+---
+
+## RESUMEN DE ENTREGA (para el usuario)
+
+- **Commit final:** `7578cc3` — "Bitácora: intento de push a GitHub bloqueado por falta de remoto" (el historial completo, 12 commits, quedó reflejado en el remoto).
+- **Rama:** `master`
+- **Remoto:** `origin` → `https://github.com/zeagino-lab/studio-zea-web.git` (privado)
+- **Resultado del push:** exitoso — `[new branch] master -> master`, verificado con `git rev-parse` (local y remoto coinciden).
+- **URL del repositorio:** https://github.com/zeagino-lab/studio-zea-web
+- **Archivos incluidos:** 32 archivos trackeados — `index.html`, `AGENTS.md`, `docs/*.md` (3 archivos), `.gitignore`, `images/*` (26 archivos).
+- **Pruebas realizadas antes del push:** escaneo de secretos en todo el historial (limpio), balance de `<script>`, `node --check`, funciones clave presentes, 26 referencias de imagen verificadas contra disco, prueba de regresión del estimador con los mismos 3 escenarios ya documentados (sin cambios de resultado).
+- **Problemas:** ninguno bloqueante. `.git/` pesa 65MB por el historial (incluye el commit original de 20,7MB antes de la limpieza de imágenes) — no afecta el sitio publicado, solo el tamaño del repositorio.
+- **Siguiente acción:** el repositorio ya sirve como respaldo de prueba. Falta decidir con el usuario si se configura autenticación persistente para futuros pushes, y seguir con Fase 1 (Apps Script + GA4) o el trabajo de contenido/redes que el usuario quiera retomar ahora.
