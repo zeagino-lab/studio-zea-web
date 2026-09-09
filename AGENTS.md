@@ -289,3 +289,17 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** Se informa esto directamente al usuario en el chat para que decida si: (a) esto es intencional y ya se considera "en vivo" para pruebas con público real, o (b) prefiere restringir el acceso (por ejemplo, desactivando Pages temporalmente) hasta terminar GA4 y revisar el tema de precios con más calma.
 **PENDIENTES:** ID de medición GA4 (el usuario confirmó que aún debe completar este paso — es el único punto que falta para cerrar Fase 1 completa). Decisión del usuario sobre visibilidad pública del sitio/repositorio.
 **SIGUIENTE ACCIÓN:** Esperar el ID de GA4 del usuario para integrarlo; esperar su decisión sobre si el sitio queda público en `studioszea.com` o se restringe mientras se termina de pulir.
+
+### TAREA: Fase 1 — Integrar GA4 (analítica de embudo)
+**OBJETIVO:** Cerrar el segundo y último pendiente de Fase 1 con el ID de medición entregado por el usuario.
+**ESTADO:** Completado — Fase 1 cerrada por completo (WhatsApp + persistencia de leads + analítica).
+**ARCHIVOS MODIFICADOS:** `index.html`.
+**CAMBIOS:**
+- Etiqueta de Google (`gtag.js`) con ID `G-YZ8ZMX5428`, insertada justo después de `<head>` (ubicación exacta indicada por la propia consola de GA4).
+- 4 eventos personalizados para medir el embudo real, no solo pageviews: `estimator_start` (al elegir tipo de proyecto, desde el wizard y desde los botones de la sección Servicios), `estimator_complete` (al ver el resultado, junto a `sendLeadToSheet()`), `whatsapp_click` (al presionar el botón de WhatsApp).
+**DEPENDENCIAS:** Ninguna nueva (script externo de Google, estándar).
+**PRUEBAS REALIZADAS:** Balance de `<script>` 5/5 (se suman los 2 del snippet de Google); `node --check` en los 3 bloques JS vanilla; `git diff` revisado línea por línea (12 inserciones, 1 eliminación, solo en los 4 puntos de instrumentación); confirmado que no se tocó ninguna función de cálculo ni la persistencia de leads ya integrada.
+**PROBLEMAS DETECTADOS:** Ninguno.
+**DECISIONES:** Se agregaron eventos de embudo (no solo el tag base) porque el objetivo declarado de esta fase era "ver en qué paso se cae la gente", no solo contar visitas — instalar únicamente el tag base no habría cumplido ese objetivo.
+**PENDIENTES:** Ninguno de Fase 1. Queda abierta la conversación sobre si el sitio publicado en `studioszea.com` vía GitHub Pages debe quedar público de forma permanente o restringirse mientras se revisa el tema de precios (ver entrada anterior de la Bitácora).
+**SIGUIENTE ACCIÓN:** Confirmar con el usuario en GA4 (pestaña "Informes en tiempo real") que los eventos llegan correctamente al usar el sitio en vivo; luego, decidir con el usuario el siguiente foco (contenido/redes, revisión de precios, o Fase 2).
