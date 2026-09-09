@@ -275,3 +275,17 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** El campo "WhatsApp" se hizo obligatorio, igual que "Nombre" — un lead sin contacto no es recontactable, que era justamente el hallazgo original de la auditoría.
 **PENDIENTES:** ID de medición GA4 (único dato que falta para cerrar Fase 1 por completo). Aclarar con el usuario la intención real del CNAME (`studioszea.com`) — si va a publicar el sitio vía GitHub Pages, hay que decidir si el repo debe pasar a público (Pages con dominio propio en repos privados requiere GitHub Pro/Team) y coordinar esa decisión antes de que quede publicado sin querer.
 **SIGUIENTE ACCIÓN:** Preguntar al usuario sobre el CNAME/GitHub Pages; recibir el ID de GA4 para cerrar Fase 1.
+
+### TAREA: Confirmar dominio propio (Cloudflare) y publicación en GitHub Pages
+**OBJETIVO:** Registrar en la Bitácora que el dominio `studioszea.com` (DNS gestionado en Cloudflare) fue asignado por el usuario el 08/09/2026 y verificar el estado real de la publicación.
+**ESTADO:** Completado (verificación); pendiente decisión del usuario sobre visibilidad del repo.
+**ARCHIVOS MODIFICADOS:** Ninguno de código — solo esta entrada de Bitácora.
+**CAMBIOS:** Ninguno de código. Verificación externa del sitio en vivo.
+**PRUEBAS REALIZADAS:**
+- `https://studioszea.com` responde HTTP 200, servido por GitHub Pages (`server: GitHub.com`).
+- El HTML servido es el corregido real: 88KB, contiene `sendLeadToSheet`/`LEADS_ENDPOINT` (persistencia de leads) y `V12-Quito-2026-sourced-CAE-INEC` (pricing sourced) — no es una versión vieja ni cacheada de otro origen.
+- Una imagen real (`images/residencia-noboa-01.jpg`) carga con HTTP 200 desde el dominio — las rutas relativas a `images/` funcionan correctamente en producción.
+**PROBLEMAS DETECTADOS / IMPORTANTE:** El repositorio se creó como **privado**, pero GitHub Pages con dominio propio normalmente requiere que el repositorio sea público en el plan gratuito de GitHub (los dominios propios en Pages sobre repos privados suelen requerir GitHub Pro/Team). Que el sitio esté sirviendo en vivo indica que, en la práctica, **el sitio ya es público para cualquier visitante que entre a `studioszea.com`** — independientemente de si el repositorio de código sigue marcado como privado en la configuración de GitHub. Esto cambia el carácter de esta publicación: ya no es solo un respaldo de prueba interno, es un sitio accesible por cualquiera, con el estimador funcionando y los precios V12 (37%-82% más altos que el modelo anterior) visibles a cualquier visitante real.
+**DECISIONES:** Se informa esto directamente al usuario en el chat para que decida si: (a) esto es intencional y ya se considera "en vivo" para pruebas con público real, o (b) prefiere restringir el acceso (por ejemplo, desactivando Pages temporalmente) hasta terminar GA4 y revisar el tema de precios con más calma.
+**PENDIENTES:** ID de medición GA4 (el usuario confirmó que aún debe completar este paso — es el único punto que falta para cerrar Fase 1 completa). Decisión del usuario sobre visibilidad pública del sitio/repositorio.
+**SIGUIENTE ACCIÓN:** Esperar el ID de GA4 del usuario para integrarlo; esperar su decisión sobre si el sitio queda público en `studioszea.com` o se restringe mientras se termina de pulir.
