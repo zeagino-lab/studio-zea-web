@@ -1031,20 +1031,8 @@ ${location.href.split('#')[0]}#estimar`;
   return 'https://wa.me/593992717424?text='+encodeURIComponent(msg);
 }
 
-async function shareProjectToWhatsApp(){
+function shareProjectToWhatsApp(){
   if(typeof gtag==='function')gtag('event','whatsapp_click',{project_type:estimator.mode});
-  const c=estimateCost();
-  const text=decodeURIComponent(waLink().split('text=')[1]||'');
-  try{
-    const url=new URL('images/studio-zea-logo-animado.gif',location.href);
-    const res=await fetch(url);
-    const blob=await res.blob();
-    const file=new File([blob],'studio-zea-logo-animado.gif',{type:'image/gif'});
-    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({title:'STUDIO ZEA · Estimación de proyecto',text,files:[file]});
-      return;
-    }
-  }catch(e){}
   window.open(waLink(),'_blank','noopener');
 }
 
