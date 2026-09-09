@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="es">
 <head>
+<!-- Google tag (gtag.js) — GA4, medicion del embudo del estimador -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YZ8ZMX5428"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-YZ8ZMX5428');
+</script>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>STUDIO ZEA — Arquitectura · Diseño · Construcción</title>
 <meta name="description" content="STUDIO ZEA — Arquitectura, diseño y construcción en Quito y Pichincha.">
@@ -851,7 +859,7 @@ function renderEstimator(){
         ${['Casa nueva','Remodelación','Comercial','Empresa / BIM'].map(v=>`<button class="opt ${estimator.data.tipo===v?'on':''}" data-type="${v}"><b>${v}</b><small>${flows[v].profile}</small></button>`).join('')}
       </div>
       <p class="estimator-intent">El valor que verás es referencial y se actualiza a medida que completas el diagnóstico.</p>`;
-    document.querySelectorAll('#wBody [data-type]').forEach(b=>b.onclick=()=>{estimator.mode=b.dataset.type;estimator.data.tipo=b.dataset.type;estimator.step=0;renderEstimator();});
+    document.querySelectorAll('#wBody [data-type]').forEach(b=>b.onclick=()=>{estimator.mode=b.dataset.type;estimator.data.tipo=b.dataset.type;estimator.step=0;if(typeof gtag==='function')gtag('event','estimator_start',{project_type:estimator.mode});renderEstimator();});
     document.getElementById('wBack').style.visibility='hidden';
     document.getElementById('wNext').textContent='Seleccionar →';
     document.getElementById('wNext').onclick=()=>{};
@@ -956,6 +964,7 @@ function result(){
     lead:internalLead,
     raw:d
   });
+  if(typeof gtag==='function')gtag('event','estimator_complete',{project_type:estimator.mode,lead_classification:internalLead});
   document.getElementById('wStep').textContent='Resultado';
   document.getElementById('wType').textContent=flow.label;
   const rows=[
@@ -1023,6 +1032,7 @@ ${location.href.split('#')[0]}#estimar`;
 }
 
 async function shareProjectToWhatsApp(){
+  if(typeof gtag==='function')gtag('event','whatsapp_click',{project_type:estimator.mode});
   const c=estimateCost();
   const text=decodeURIComponent(waLink().split('text=')[1]||'');
   try{
@@ -1060,6 +1070,7 @@ document.querySelectorAll('[data-estimator-type]').forEach(btn=>btn.addEventList
   estimator.mode=btn.dataset.estimatorType;
   estimator.data.tipo=btn.dataset.estimatorType;
   estimator.step=0;
+  if(typeof gtag==='function')gtag('event','estimator_start',{project_type:estimator.mode});
   document.querySelectorAll('.case.open').forEach(c=>c.classList.remove('open'));
   nav('estimar');
   renderEstimator();
