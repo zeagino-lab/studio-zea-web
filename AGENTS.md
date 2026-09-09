@@ -340,3 +340,14 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** No se modificó ninguna configuración de Cloudflare ni de DNS en esta tarea — es solo investigación y propuesta, a la espera de aprobación explícita del usuario antes de tocar la zona DNS de un sitio en producción.
 **PENDIENTES:** Aprobación del usuario para ejecutar el primer paso de Zaraz (subdominio dedicado); limpieza de leads de prueba; decisión sobre los 3 focos de negocio abiertos (precios V12, contenido/redes, Fase 2).
 **SIGUIENTE ACCIÓN:** Esperar decisión del usuario sobre Zaraz; hacer commit + push de este documento.
+
+### TAREA: Instructivo para crear el Proyecto STUDIO ZEA en Claude
+**OBJETIVO:** El usuario pidió un instructivo paso a paso para crear un "Proyecto" en Claude, análogo a lo que ya existe para ChatGPT (`docs/INSTRUCTIVO_CHATGPT.md`), para no tener que repetir contexto en cada chat nuevo.
+**ESTADO:** Completado.
+**ARCHIVOS MODIFICADOS:** `docs/INSTRUCTIVO_CREAR_PROYECTO_CLAUDE.md` (nuevo). Sin cambios en `index.html`.
+**INVESTIGACIÓN REALIZADA:** Se confirmaron en los artículos oficiales de support.claude.com (vigentes a 09/2026) los pasos reales para crear un Proyecto en dos variantes: (a) Proyecto de Claude Cowork creado directamente desde una carpeta existente en la computadora — la opción recomendada aquí, porque la carpeta del sitio ya está conectada a esta sesión; (b) Proyecto clásico en claude.ai (web/móvil) con base de conocimiento subida a mano, para consultar desde otros dispositivos sin la carpeta conectada.
+**CONTENIDO DEL DOCUMENTO:** Pasos concretos de la interfaz para crear el Proyecto desde la carpeta `PAGINA WEB` (Opción A, recomendada) y desde claude.ai subiendo `AGENTS.md`/`docs` (Opción B, complementaria); un bloque de "Instrucciones del proyecto" sugerido, que resume las reglas no negociables ya vigentes en esta Bitácora (no tocar `studiozea-oracle.key`, no cambiar precios sin aprobación, no force push, flujo ANALIZAR→PROPONER→IMPLEMENTAR→TESTEAR→AUDITAR→REPORTAR) para que cualquier chat nuevo dentro del Proyecto las herede automáticamente.
+**PROBLEMAS DETECTADOS:** Ninguno.
+**DECISIONES:** Se recomendó explícitamente la carpeta `PAGINA WEB` (no una más amplia que incluya `DATA BASE/ORACLE WEB`) como raíz del Proyecto, para no exponer innecesariamente la carpeta donde vive la llave de Oracle, aunque la regla de no tocarla sigue vigente en cualquier caso.
+**PENDIENTES:** Ninguno de código. Queda a criterio del usuario crear el Proyecto siguiendo el instructivo.
+**SIGUIENTE ACCIÓN:** Ninguna de mi parte; a la espera de que el usuario cree el Proyecto o pida ajustes al texto de instrucciones sugerido.
