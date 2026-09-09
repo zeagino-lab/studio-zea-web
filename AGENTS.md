@@ -351,3 +351,18 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** Se recomendó explícitamente la carpeta `PAGINA WEB` (no una más amplia que incluya `DATA BASE/ORACLE WEB`) como raíz del Proyecto, para no exponer innecesariamente la carpeta donde vive la llave de Oracle, aunque la regla de no tocarla sigue vigente en cualquier caso.
 **PENDIENTES:** Ninguno de código. Queda a criterio del usuario crear el Proyecto siguiendo el instructivo.
 **SIGUIENTE ACCIÓN:** Ninguna de mi parte; a la espera de que el usuario cree el Proyecto o pida ajustes al texto de instrucciones sugerido.
+
+### TAREA: Auditoría de punto de partida — contenido y redes sociales
+**OBJETIVO:** Documentar el estado real de los canales de redes sociales y de los activos de contenido disponibles, como primer paso del foco "contenido/redes" que el usuario priorizó entre los 3 pendientes de negocio abiertos en la entrada anterior de la Bitácora — sin proponer todavía calendario ni estrategia.
+**ESTADO:** Completado (auditoría). Sin cambios de código ni de infraestructura.
+**ARCHIVOS MODIFICADOS:** `docs/AUDITORIA_CONTENIDO_REDES_2026-09-09.md` (nuevo). Sin cambios en `index.html` ni en `PRICING`.
+**HALLAZGOS VERIFICADOS:**
+- Instagram `@studiozea.arq` ("Studio Zea"): 1 publicación, 2 seguidores, 2 seguidos. Bio con link a studioszea.com. Administrada actualmente por el usuario. Verificado con captura de pantalla real compartida por el usuario el 09/09/2026.
+- TikTok `@studiozea.arq` ("Studio Zea"): cuenta creada, 0 seguidores, 0 videos publicados. Verificado igual con captura del 09/09/2026.
+- Facebook y LinkedIn: no confirmadas por el usuario — quedan como pendiente, no se asume que no existan.
+- Activos reales disponibles para contenido, no usados aún en redes: fotos de los 3 casos de proyecto documentados en el sitio (`jb-medical-building` x13, `residencia-ilbay` x6, `residencia-noboa` x4), logo, foto de Gino Zea. El único post publicado en Instagram es el gráfico publicitario ya guardado en `DATA BASE/REDES SOCIALES/INSUMOS PUBLICIDAD/STUIO ZEA-01-RS.png`.
+**PRUEBAS REALIZADAS:** Búsqueda web para intentar ubicar cuentas propias (sin resultado concluyente, ninguna coincidía con claridad); verificación directa de las dos cuentas reales mediante las capturas de pantalla que el usuario compartió en el chat.
+**PROBLEMAS DETECTADOS:** Ninguno de código. A nivel de redes: TikTok sin ningún contenido publicado; Instagram con un solo post que no usa ninguna foto real de proyecto; sin UTMs ni forma de medir en GA4 si el tráfico de redes se convierte en leads. Se encontró de nuevo un `.git/index.lock` huérfano de un commit anterior sin permiso de borrado en el entorno de trabajo — se solicitó permiso al usuario y se limpió sin afectar el repositorio (`git fsck` limpio).
+**DECISIONES:** Se documenta el estado real sin proponer todavía calendario ni estrategia de contenido — el usuario pidió expresamente empezar por el diagnóstico antes de planear.
+**PENDIENTES:** Confirmar si existen cuentas de Facebook/LinkedIn. Decidir si se avanza con un plan/calendario de contenido y/o con un documento de sync para trabajar el tema con ChatGPT. Sigue pendiente también la aprobación del usuario para el paso 1 de Zaraz (Cloudflare) de la entrada anterior de la Bitácora.
+**SIGUIENTE ACCIÓN:** Esperar al usuario para decidir el siguiente paso sobre contenido/redes (calendario, sync con ChatGPT, o ambos).
