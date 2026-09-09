@@ -205,3 +205,21 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 - La mejora real de rendimiento es mayor de lo que sugiere el -78%: antes había que descargar un solo archivo de 20,75MB entero antes de pintar cualquier contenido; ahora son 26 archivos cacheables independientes, con `loading="lazy"` finalmente funcional en cada galería.
 **PENDIENTES:** URL de Apps Script (persistencia de leads); ID de medición GA4. Si se quiere bajar de 2MB en el futuro: evaluar con el usuario si conviene reducir resolución de las fotos más grandes o generar variantes `srcset` (versión chica para thumbnail, grande para lightbox) — no se hizo en esta tarea porque no estaba aprobado y añade complejidad de marcado.
 **SIGUIENTE ACCIÓN:** Retomar Fase 1 (WhatsApp + persistencia de lead + analítica) en cuanto el usuario entregue la URL del Apps Script y el ID de GA4.
+
+### TAREA: Alinear index.html corregido con GitHub como respaldo (intento de publicación de prueba)
+**OBJETIVO:** Subir al repositorio remoto de GitHub el estado corregido del `index.html` (PRICING V12 + imágenes deduplicadas) como respaldo de prueba, no como lanzamiento comercial definitivo.
+**ESTADO:** Bloqueado
+**ARCHIVOS MODIFICADOS:** Ninguno de código — solo esta entrada de Bitácora.
+**CAMBIOS:** Ninguno; no había nada nuevo que comitear (`git status` ya estaba limpio desde el commit `aae1063`, que ya contiene el estado corregido).
+**DEPENDENCIAS:** Ninguna nueva.
+**PRUEBAS REALIZADAS (previas al intento de push):**
+- Escaneo de secretos en todo el historial (`git log --all`) contra patrones de llave privada SSH, AWS, tokens: 0 coincidencias reales. Las únicas coincidencias de "oracle" son el nombre del archivo `studiozea-oracle.key` mencionado en prosa (AGENTS.md, docs de sync) como recordatorio de no tocarlo — no el contenido de la llave.
+- `git ls-files` revisado íntegro: solo `index.html`, `AGENTS.md`, `docs/*.md`, `images/*` y `.gitignore` — nada de `.key`, `.rar`, ni archivos temporales.
+- Balance de `<script>` (3/3), `node --check` en los 2 bloques JS vanilla, DOCTYPE presente, meta viewport responsive presente.
+- Funciones clave verificadas presentes: `estimateCost`, `hasEnoughForEstimate`, `renderEstimator`, `leadClassification`, `waLink`, `shareProjectToWhatsApp`, `escapeHtml`, `resetEstimator`.
+- 26 referencias únicas a `images/...` en el HTML, las 26 existen en disco — ninguna rota.
+- Prueba de regresión del estimador (bloque `PRICING`/`estimateCost()` real extraído por número de línea del `index.html` actual, no de una copia): Casa nueva/Diseño → USD 124.845-154.675; Remodelación → USD 92.418-150.318; Comercial/Oficina → USD 58.581-85.329 — coinciden exactamente con los valores ya documentados en la migración de PRICING (commit `9377015`), confirmando que no hubo regresión.
+**PROBLEMAS DETECTADOS:** No hay remoto de GitHub configurado (`git remote -v` vacío) y no hay ningún método de autenticación disponible en este entorno para crear uno ni hacer push: no está instalado GitHub CLI (`gh`), no hay Git Credential Manager, no hay credential helper ni token almacenado. Por regla explícita del usuario, no se inventó ninguna URL ni credencial.
+**DECISIONES:** Se detiene el flujo antes del paso de `push` y se reporta exactamente qué falta, en vez de asumir o crear un repositorio a ciegas.
+**PENDIENTES:** El usuario debe indicar (a) si ya existe un repositorio de GitHub para este proyecto (URL) o si hay que crear uno nuevo, y (b) cómo autenticar el push (recomendado: token de acceso personal de GitHub con alcance `repo`, usado solo para ese comando puntual, sin guardarlo en la configuración de Git).
+**SIGUIENTE ACCIÓN:** Retomar el push en cuanto el usuario entregue el repositorio (nuevo o existente) y el método de autenticación.
