@@ -303,3 +303,13 @@ Requieren aprobación explícita del usuario antes de implementar: cambios de pr
 **DECISIONES:** Se agregaron eventos de embudo (no solo el tag base) porque el objetivo declarado de esta fase era "ver en qué paso se cae la gente", no solo contar visitas — instalar únicamente el tag base no habría cumplido ese objetivo.
 **PENDIENTES:** Ninguno de Fase 1. Queda abierta la conversación sobre si el sitio publicado en `studioszea.com` vía GitHub Pages debe quedar público de forma permanente o restringirse mientras se revisa el tema de precios (ver entrada anterior de la Bitácora).
 **SIGUIENTE ACCIÓN:** Confirmar con el usuario en GA4 (pestaña "Informes en tiempo real") que los eventos llegan correctamente al usar el sitio en vivo; luego, decidir con el usuario el siguiente foco (contenido/redes, revisión de precios, o Fase 2).
+
+### TAREA: Decisión del usuario — mantener el sitio público para pruebas con usuarios reales
+**OBJETIVO:** Registrar la decisión explícita del usuario sobre la visibilidad de `studioszea.com`, pendiente desde la entrada anterior de la Bitácora.
+**ESTADO:** Completado
+**ARCHIVOS MODIFICADOS:** Ninguno de código — solo esta entrada de Bitácora.
+**DECISIÓN DEL USUARIO:** "Vamos a mantener en público para que se pueda entrar y testear la página por usuarios reales." El sitio `studioszea.com` queda operativo y público de forma intencional — no es un accidente de configuración de GitHub Pages, es la decisión consciente del usuario para esta etapa.
+**VERIFICACIÓN:** El usuario confirmó en GA4 ("Resumen en tiempo real") que la analítica está capturando datos reales — 2 usuarios activos, vista de página "STUDIO ZEA — Arquitectura..." registrada correctamente.
+**IMPLICACIÓN IMPORTANTE:** Como el sitio ya recibe usuarios reales, cualquier prospecto real puede ver y usar el estimador con el modelo de precios V12 (37%-82% más alto que el V11 anterior, ver Bitácora de la migración de PRICING). Los leads que llegan a la hoja de cálculo desde este momento son leads reales, no solo pruebas — hay que tratarlos como tal (revisar la hoja "Leads" periódicamente, no solo cuando se recuerde).
+**PENDIENTES:** Ninguno de infraestructura. Fase 1 queda cerrada por completo (WhatsApp + persistencia + analítica) y el sitio validado en producción. Los focos abiertos para decidir con el usuario son: (a) revisión editorial/de negocio de los precios V12 ahora que hay usuarios reales viéndolos, (b) trabajo de contenido/redes para generar tráfico hacia el sitio ya público, (c) inicio de Fase 2 según el plan original.
+**SIGUIENTE ACCIÓN:** Preguntar al usuario cuál de esos tres focos prioriza a continuación.
